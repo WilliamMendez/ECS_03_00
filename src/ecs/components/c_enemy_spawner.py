@@ -2,6 +2,7 @@ import pygame
 
 class CEnemySpawner:
     def __init__(self, spawn_events_data:dict) -> None:
+        print("CEnemySpawner")
         self.current_time:float = 0
         self.spawn_event_data:list[SpawnEventData] = []
         for single_event in spawn_events_data:
@@ -14,4 +15,4 @@ class SpawnEventData:
         self.position:pygame.Vector2 = pygame.Vector2(
             event_data["position"]["x"],
             event_data["position"]["y"])
-        self.triggered = False
+        self.state = 0 # 0 = not spawned, 1 = spawned, 2 = destroyed
