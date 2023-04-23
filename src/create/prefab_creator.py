@@ -1,3 +1,4 @@
+from datetime import datetime
 import random
 import pygame
 import esper
@@ -5,7 +6,6 @@ import esper
 from src.ecs.components.c_animation import AnimationData, CAnimation
 from src.ecs.components.c_enemy_spawner import CEnemySpawner
 from src.ecs.components.c_enemy_state import CEnemyState
-from src.ecs.components.c_explosion_spawner import CExplosionspawner
 from src.ecs.components.c_input_command import CInputCommand
 from src.ecs.components.c_player_state import CPlayerState
 from src.ecs.components.c_surface import CSurface
@@ -32,9 +32,9 @@ def create_square(world: esper.World, size: pygame.Vector2,
 
 def create_sprite(world: esper.World, pos: pygame.Vector2, vel: pygame.Vector2, surface: pygame.Surface) -> int:
     sprite_entity = world.create_entity()
+    world.add_component(sprite_entity, CSurface.from_surface(surface))
     world.add_component(sprite_entity, CTransform(pos))
     world.add_component(sprite_entity, CVelocity(vel))
-    world.add_component(sprite_entity, CSurface.from_surface(surface))
     return sprite_entity
 
 
@@ -83,15 +83,21 @@ def create_debug_circle(world: esper.World, pos: pygame.Vector2, radius: int, co
     world.add_component(debug_circle_entity, CTransform(center))
     world.add_component(debug_circle_entity, CSurface.from_circle(radius, col))
 
-def create_explosion(world: esper.World, pos: pygame.Vector2, image: str, animation_info: dict):
+
+def create_explosion(world: esper.World, pos: pygame.Vector2, explosion_info: dict):
+    image = explosion_info["image"]
+    animation_info = explosion_info["animations"]
     explosion_sprite = pygame.image.load(image).convert_alpha()
-    explosion_entity = create_sprite(world, pos, pygame.Vector2(0, 0), explosion_sprite)
+    explosion_entity = create_sprite(
+        world, pos, pygame.Vector2(0, 0), explosion_sprite)
+    time = datetime.now().time()
+    print("sprt created", time, "entity", explosion_entity)
+
     world.add_component(explosion_entity, CAnimation(animation_info))
     world.add_component(explosion_entity, CTagExplosion())
+    time = datetime.now().time()
+    print("expl created", time, "entity", explosion_entity)
 
-def create_explosion_spawner(world: esper.World, explosion_info: dict):
-    explosion_spawner_entity = world.create_entity()
-    world.add_component(explosion_spawner_entity, CExplosionspawner(explosion_info))
 
 def create_player_square(world: esper.World, player_info: dict, player_lvl_info: dict) -> int:
     player_sprite = pygame.image.load(player_info["image"]).convert_alpha()

@@ -2,14 +2,13 @@
 
 import esper
 from src.create.prefab_creator import create_explosion
-from src.ecs.components.c_explosion_spawner import CExplosionspawner
 from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_transform import CTransform
 from src.ecs.components.tags.c_tag_enemy import CTagEnemy
 from src.ecs.components.tags.c_tag_enemy_hunter import CTagEnemyHunter
 
 
-def system_collision_player_enemy(world: esper.World, player_entity: int, level_cfg: dict):
+def system_collision_player_enemy(world: esper.World, player_entity: int, level_cfg: dict, explosion_info: dict):
     components = world.get_components(CSurface, CTransform, CTagEnemy)
     components.extend(world.get_components(
         CSurface, CTransform, CTagEnemyHunter))
@@ -20,13 +19,11 @@ def system_collision_player_enemy(world: esper.World, player_entity: int, level_
     pl_rect = CSurface.get_area_relative(pl_s.area, pl_t.pos)
     pl_rect.topleft = pl_t.pos
 
-    _, (c_expl_spawner,) = world.get_components(CExplosionspawner)[0]
-
     for enemy_entity, (c_s, c_t, _) in components:
         ene_rect = CSurface.get_area_relative(c_s.area, c_t.pos)
         ene_rect.topleft = c_t.pos
         if ene_rect.colliderect(pl_rect):
-            create_explosion(world, c_t.pos, c_expl_spawner.image, c_expl_spawner.animation_data)
+            create_explosion(world, c_t.pos, explosion_info)
 
             world.delete_entity(enemy_entity)
             player_rect = CSurface.get_area_relative(pl_s.area, pl_t.pos)

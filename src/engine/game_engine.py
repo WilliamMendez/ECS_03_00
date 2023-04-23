@@ -23,7 +23,7 @@ from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 from src.ecs.components.tags.c_tag_bullet import CTagBullet
 
-from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet, create_explosion_spawner
+from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet
 
 
 class GameEngine:
@@ -84,7 +84,6 @@ class GameEngine:
 
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
-        create_explosion_spawner(self.ecs_world, self.explosion_cfg)
 
     def _calculate_time(self):
         self.clock.tick(self.framerate)
@@ -114,9 +113,9 @@ class GameEngine:
         system_screen_player(self.ecs_world, self.screen)
         system_screen_bullet(self.ecs_world, self.screen)
 
-        system_collision_enemy_bullet(self.ecs_world)
+        system_collision_enemy_bullet(self.ecs_world, self.explosion_cfg)
         system_collision_player_enemy(
-            self.ecs_world, self._player_entity, self.level_01_cfg)
+            self.ecs_world, self._player_entity, self.level_01_cfg, self.explosion_cfg)
 
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))
