@@ -15,6 +15,7 @@ from src.ecs.systems.s_rendering import system_rendering
 from src.ecs.systems.s_screen_bounce import system_screen_bounce
 from src.ecs.systems.s_screen_player import system_screen_player
 from src.ecs.systems.s_screen_bullet import system_screen_bullet
+from src.ecs.systems.s_explosion_cleaner import system_explosion_cleaner
 
 from src.ecs.components.c_velocity import CVelocity
 from src.ecs.components.c_transform import CTransform
@@ -22,7 +23,7 @@ from src.ecs.components.c_surface import CSurface
 from src.ecs.components.c_input_command import CInputCommand, CommandPhase
 from src.ecs.components.tags.c_tag_bullet import CTagBullet
 
-from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet
+from src.create.prefab_creator import create_enemy_spawner, create_input_player, create_player_square, create_bullet, create_explosion_spawner
 
 
 class GameEngine:
@@ -58,6 +59,8 @@ class GameEngine:
             self.player_cfg = json.load(player_file)
         with open(route + "bullet.json") as bullet_file:
             self.bullet_cfg = json.load(bullet_file)
+        with open(route + "explosion.json") as explosion_file:
+            self.explosion_cfg = json.load(explosion_file)
 
     def run(self) -> None:
         self._create()
@@ -81,6 +84,7 @@ class GameEngine:
 
         create_enemy_spawner(self.ecs_world, self.level_01_cfg)
         create_input_player(self.ecs_world)
+        create_explosion_spawner(self.ecs_world, self.explosion_cfg)
 
     def _calculate_time(self):
         self.clock.tick(self.framerate)
@@ -103,6 +107,9 @@ class GameEngine:
         system_enemy_state(self.ecs_world)
         system_player_state(self.ecs_world)
 
+        system_animation(self.ecs_world, self.delta_time)
+        system_explosion_cleaner(self.ecs_world)
+
         system_screen_bounce(self.ecs_world, self.screen)
         system_screen_player(self.ecs_world, self.screen)
         system_screen_bullet(self.ecs_world, self.screen)
@@ -110,8 +117,6 @@ class GameEngine:
         system_collision_enemy_bullet(self.ecs_world)
         system_collision_player_enemy(
             self.ecs_world, self._player_entity, self.level_01_cfg)
-
-        system_animation(self.ecs_world, self.delta_time)
 
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))

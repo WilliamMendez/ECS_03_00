@@ -2,7 +2,6 @@ import pygame
 
 class CEnemySpawner:
     def __init__(self, spawn_events_data:dict) -> None:
-        print("CEnemySpawner")
         self.current_time:float = 0
         self.spawn_event_data:list[SpawnEventData] = []
         for single_event in spawn_events_data:

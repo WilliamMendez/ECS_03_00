@@ -2,9 +2,10 @@ import random
 import pygame
 import esper
 
-from src.ecs.components.c_animation import CAnimation
+from src.ecs.components.c_animation import AnimationData, CAnimation
 from src.ecs.components.c_enemy_spawner import CEnemySpawner
 from src.ecs.components.c_enemy_state import CEnemyState
+from src.ecs.components.c_explosion_spawner import CExplosionspawner
 from src.ecs.components.c_input_command import CInputCommand
 from src.ecs.components.c_player_state import CPlayerState
 from src.ecs.components.c_surface import CSurface
@@ -12,6 +13,7 @@ from src.ecs.components.c_transform import CTransform
 from src.ecs.components.c_velocity import CVelocity
 from src.ecs.components.tags.c_tag_enemy import CTagEnemy
 from src.ecs.components.tags.c_tag_enemy_hunter import CTagEnemyHunter
+from src.ecs.components.tags.c_tag_explosion import CTagExplosion
 from src.ecs.components.tags.c_tag_player import CTagPlayer
 from src.ecs.components.tags.c_tag_bullet import CTagBullet
 
@@ -59,14 +61,37 @@ def create_enemy_hunter(world: esper.World, pos: pygame.Vector2, enemy_info: dic
     dist_chase = enemy_info["distance_start_chase"]
     dist_return = enemy_info["distance_start_return"]
     origin_pos = pos
-    enemy_entity = create_sprite(world, pos, pygame.Vector2(0,0), enemy_sprite)
-    world.add_component(enemy_entity, CTagEnemyHunter(vel_chase, vel_return, dist_chase, dist_return, origin_pos))
+    enemy_entity = create_sprite(world, pygame.Vector2(
+        pos), pygame.Vector2(0, 0), enemy_sprite)
+    world.add_component(enemy_entity, CTagEnemyHunter(
+        vel_chase, vel_return, dist_chase, dist_return, origin_pos))
+
+    # show a circle to see the chase and return distance
+    # create_debug_circle(world, pos, dist_chase, pygame.Color("red"))
+    # create_debug_circle(world, pos, dist_return, pygame.Color("green"))
+
     if enemy_info.get("animations") is not None:
         size = enemy_sprite.get_size()
         size = (size[0] / enemy_info["animations"]["number_frames"], size[1])
         world.add_component(enemy_entity, CAnimation(enemy_info["animations"]))
         world.add_component(enemy_entity, CEnemyState())
 
+
+def create_debug_circle(world: esper.World, pos: pygame.Vector2, radius: int, col: pygame.Color):
+    debug_circle_entity = world.create_entity()
+    center = pygame.Vector2(pos.x - radius, pos.y - radius)
+    world.add_component(debug_circle_entity, CTransform(center))
+    world.add_component(debug_circle_entity, CSurface.from_circle(radius, col))
+
+def create_explosion(world: esper.World, pos: pygame.Vector2, image: str, animation_info: dict):
+    explosion_sprite = pygame.image.load(image).convert_alpha()
+    explosion_entity = create_sprite(world, pos, pygame.Vector2(0, 0), explosion_sprite)
+    world.add_component(explosion_entity, CAnimation(animation_info))
+    world.add_component(explosion_entity, CTagExplosion())
+
+def create_explosion_spawner(world: esper.World, explosion_info: dict):
+    explosion_spawner_entity = world.create_entity()
+    world.add_component(explosion_spawner_entity, CExplosionspawner(explosion_info))
 
 def create_player_square(world: esper.World, player_info: dict, player_lvl_info: dict) -> int:
     player_sprite = pygame.image.load(player_info["image"]).convert_alpha()
