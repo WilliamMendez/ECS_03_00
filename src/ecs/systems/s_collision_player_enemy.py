@@ -1,5 +1,6 @@
 
 
+from datetime import datetime
 import esper
 from src.create.prefab_creator import create_explosion
 from src.ecs.components.c_surface import CSurface
@@ -23,6 +24,8 @@ def system_collision_player_enemy(world: esper.World, player_entity: int, level_
         ene_rect = CSurface.get_area_relative(c_s.area, c_t.pos)
         ene_rect.topleft = c_t.pos
         if ene_rect.colliderect(pl_rect):
+            time = datetime.now().time()
+            print("Collision   ", time)
             create_explosion(world, c_t.pos, explosion_info)
 
             world.delete_entity(enemy_entity)

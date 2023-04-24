@@ -106,16 +106,16 @@ class GameEngine:
         system_enemy_state(self.ecs_world)
         system_player_state(self.ecs_world)
 
+        system_collision_enemy_bullet(self.ecs_world, self.explosion_cfg)
+        system_collision_player_enemy(
+            self.ecs_world, self._player_entity, self.level_01_cfg, self.explosion_cfg)
+
         system_animation(self.ecs_world, self.delta_time)
         system_explosion_cleaner(self.ecs_world)
 
         system_screen_bounce(self.ecs_world, self.screen)
         system_screen_player(self.ecs_world, self.screen)
         system_screen_bullet(self.ecs_world, self.screen)
-
-        system_collision_enemy_bullet(self.ecs_world, self.explosion_cfg)
-        system_collision_player_enemy(
-            self.ecs_world, self._player_entity, self.level_01_cfg, self.explosion_cfg)
 
         self.ecs_world._clear_dead_entities()
         self.num_bullets = len(self.ecs_world.get_component(CTagBullet))

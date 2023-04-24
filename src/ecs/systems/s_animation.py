@@ -3,6 +3,7 @@ from datetime import datetime
 
 from src.ecs.components.c_animation import CAnimation
 from src.ecs.components.c_surface import CSurface
+from src.ecs.components.tags.c_tag_explosion import CTagExplosion
 
 def system_animation(world: esper.World, deltatime: float):
     components = world.get_components(CSurface, CAnimation)
@@ -19,5 +20,7 @@ def system_animation(world: esper.World, deltatime: float):
             rect_surf = c_s.surf.get_rect()
             c_s.area.w = rect_surf.w / c_a.number_frames
             c_s.area.x = c_s.area.w * c_a.curr_frame
-            time = datetime.now().time()
-            print("Anim changed",time, "entity",_)
+            # if it has CTagExplosion, print the time
+            if world.has_component(_, CTagExplosion):
+                time = datetime.now().time()
+                print("Anim changed",time, "entity",_)

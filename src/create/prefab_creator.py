@@ -94,6 +94,8 @@ def create_explosion(world: esper.World, pos: pygame.Vector2, explosion_info: di
     print("sprt created", time, "entity", explosion_entity)
 
     world.add_component(explosion_entity, CAnimation(animation_info))
+    time = datetime.now().time()
+    print("anim created", time, "entity", explosion_entity)
     world.add_component(explosion_entity, CTagExplosion())
     time = datetime.now().time()
     print("expl created", time, "entity", explosion_entity)
